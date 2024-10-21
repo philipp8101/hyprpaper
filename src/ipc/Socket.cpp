@@ -133,7 +133,7 @@ bool CIPCSocket::mainThreadParseRequest() {
         m_szReply           = "";
         long unsigned int i = 0;
         for (auto& [name, target] : g_pHyprpaper->m_mWallpaperTargets) {
-            m_szReply += name;
+            m_szReply += std::string(name.path);
             i++;
             if (i < numWallpapersLoaded)
                 m_szReply += '\n'; // dont add newline on last entry
@@ -155,7 +155,7 @@ bool CIPCSocket::mainThreadParseRequest() {
         m_szReply           = "";
         long unsigned int i = 0;
         for (auto& [mon, path1] : g_pHyprpaper->m_mMonitorActiveWallpapers) {
-            m_szReply += mon + " = " + path1;
+            m_szReply += mon + " = " + std::string(path1.path);
             i++;
             if (i < numWallpapersActive)
                 m_szReply += '\n'; // dont add newline on last entry

@@ -104,7 +104,7 @@ void CHyprpaper::tick(bool force) {
     recheckAllMonitors();
 }
 
-bool CHyprpaper::isPreloaded(const std::string& path) {
+bool CHyprpaper::isPreloaded(const SWallpaperSource& path) {
     for (auto& [pt, wt] : m_mWallpaperTargets) {
         if (pt == path)
             return true;
@@ -113,11 +113,11 @@ bool CHyprpaper::isPreloaded(const std::string& path) {
     return false;
 }
 
-void CHyprpaper::unloadWallpaper(const std::string& path) {
+void CHyprpaper::unloadWallpaper(const SWallpaperSource& sWallpaper) {
     bool found = false;
 
     for (auto& [ewp, cls] : m_mWallpaperTargets) {
-        if (ewp == path) {
+        if (ewp == sWallpaper) {
             // found
             found = true;
             break;
@@ -132,14 +132,14 @@ void CHyprpaper::unloadWallpaper(const std::string& path) {
     // clean buffers
     for (auto it = m_vBuffers.begin(); it != m_vBuffers.end();) {
 
-        if (it->get()->target != path) {
+        if (it->get()->target != sWallpaper.path) {
             it++;
             continue;
         }
 
         const auto PRELOADPATH = it->get()->name;
 
-        Debug::log(LOG, "Unloading target %s, preload path %s", path.c_str(), PRELOADPATH.c_str());
+        Debug::log(LOG, "Unloading target %s, preload path %s", sWallpaper.path.c_str(), PRELOADPATH.c_str());
 
         std::filesystem::remove(PRELOADPATH);
 
@@ -148,7 +148,7 @@ void CHyprpaper::unloadWallpaper(const std::string& path) {
         it = m_vBuffers.erase(it);
     }
 
-    m_mWallpaperTargets.erase(path); // will free the cairo surface
+    m_mWallpaperTargets.erase(sWallpaper); // will free the cairo surface
 }
 
 void CHyprpaper::preloadAllWallpapersFromConfig() {
@@ -161,7 +161,7 @@ void CHyprpaper::preloadAllWallpapersFromConfig() {
         bool exists = false;
         for (auto& [ewp, cls] : m_mWallpaperTargets) {
             if (ewp == wp) {
-                Debug::log(LOG, "Ignoring request to preload %s as it already is preloaded!", ewp.c_str());
+                Debug::log(LOG, "Ignoring request to preload %s as it already is preloaded!", ewp.uid.c_str());
                 exists = true;
                 break;
             }
@@ -171,13 +171,13 @@ void CHyprpaper::preloadAllWallpapersFromConfig() {
             continue;
 
         m_mWallpaperTargets[wp] = CWallpaperTarget();
-        if (std::filesystem::is_symlink(wp)) {
-            auto                  real_wp       = std::filesystem::read_symlink(wp);
-            std::filesystem::path absolute_path = std::filesystem::path(wp).parent_path() / real_wp;
+        if (std::filesystem::is_symlink(wp.path)) {
+            auto                  real_wp       = std::filesystem::read_symlink(wp.path);
+            std::filesystem::path absolute_path = std::filesystem::path(wp.path).parent_path() / real_wp;
             absolute_path                       = absolute_path.lexically_normal();
             m_mWallpaperTargets[wp].create(absolute_path);
         } else {
-            m_mWallpaperTargets[wp].create(wp);
+            m_mWallpaperTargets[wp].create(wp.path);
         }
     }
 

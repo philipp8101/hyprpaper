@@ -1,6 +1,26 @@
 #pragma once
 #include "../defines.hpp"
 #include <hyprlang.hpp>
+#include <filesystem>
+#include <functional>
+
+struct SWallpaperSource {
+    std::string uid;
+    std::filesystem::path path;
+    bool operator==(const SWallpaperSource& other) const {
+        return uid == other.uid;
+    }
+};
+
+
+namespace std {
+    template <>
+    struct hash<SWallpaperSource> {
+        size_t operator()(const SWallpaperSource& myStruct) const {
+            return hash<std::string>()(myStruct.uid);
+        }
+    };
+}
 
 class CIPCSocket;
 
@@ -10,7 +30,7 @@ class CConfigManager {
     CConfigManager();
     void                               parse();
 
-    std::deque<std::string>            m_dRequestedPreloads;
+    std::deque<SWallpaperSource>       m_dRequestedPreloads;
     std::string                        getMainConfigPath();
     std::string                        trimPath(std::string path);
 

@@ -7,6 +7,7 @@
 #include "helpers/PoolBuffer.hpp"
 #include "ipc/Socket.hpp"
 #include "render/WallpaperTarget.hpp"
+#include <filesystem>
 #include <mutex>
 
 #include "protocols/cursor-shape-v1.hpp"
@@ -39,8 +40,8 @@ class CHyprpaper {
     void                                                  init();
     void                                                  tick(bool force);
 
-    std::unordered_map<std::string, CWallpaperTarget>     m_mWallpaperTargets;
-    std::unordered_map<std::string, std::string>          m_mMonitorActiveWallpapers;
+    std::unordered_map<SWallpaperSource, CWallpaperTarget>m_mWallpaperTargets;
+    std::unordered_map<std::string, SWallpaperSource>     m_mMonitorActiveWallpapers;
     std::unordered_map<std::string, SWallpaperRenderData> m_mMonitorWallpaperRenderData;
     std::unordered_map<SMonitor*, CWallpaperTarget*>      m_mMonitorActiveWallpaperTargets;
     std::vector<std::unique_ptr<SPoolBuffer>>             m_vBuffers;
@@ -61,11 +62,11 @@ class CHyprpaper {
     bool                                                  setCloexec(const int&);
     void                                                  clearWallpaperFromMonitor(const std::string&);
     SMonitor*                                             getMonitorFromName(const std::string&);
-    bool                                                  isPreloaded(const std::string&);
+    bool                                                  isPreloaded(const SWallpaperSource&);
     void                                                  recheckMonitor(SMonitor*);
     void                                                  ensurePoolBuffersPresent();
     SPoolBuffer*                                          getPoolBuffer(SMonitor*, CWallpaperTarget*);
-    void                                                  unloadWallpaper(const std::string&);
+    void                                                  unloadWallpaper(const SWallpaperSource&);
     void                                                  createSeat(SP<CCWlSeat>);
     bool                                                  lockSingleInstance(); // fails on multi-instance
     void                                                  unlockSingleInstance();
