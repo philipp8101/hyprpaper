@@ -74,11 +74,20 @@ preload = /path/to/image.png
 preload = /path/to/next_image.png
 # .. more preloads
 
+#this will pick two images from the /path/to/images/ directory
+#you can request any number of images by adding more identifiers
+#this will not pick the same image twice
+preload-random = /path/to/images/ wall1 wall2
+
 #set the default wallpaper(s) seen on initial workspace(s) --depending on the number of monitors used
 wallpaper = monitor1,/path/to/image.png
 #if more than one monitor in use, can load a 2nd image
 wallpaper = monitor2,/path/to/next_image.png
 # .. more monitors
+
+#set monitor 3 and 4 to images from 'preload-random'
+wallpaper = monitor3, wall1
+wallpaper = monitor4, wall2
 
 #enable splash text rendering over the wallpaper
 splash = true
